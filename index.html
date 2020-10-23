@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart.JS Feladat</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+</head>
+<body>
+    <canvas id="chart" width="700" height="300"></canvas>
+    <script>
+        chartIt();
+        async function chartIt() {
+            const data = await getData();
+            const ctx = document.getElementById('chart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(data.yOkt),
+                    datasets: [{
+                        label: 'Oktoberfest évi statisztikája',
+                        data: Object.values(data.yOkt),
+                        fill: false,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Bundestagswahl évi statisztikája',
+                        data: Object.values(data.yBun),
+                        fill: false,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+            });
+        }
+
+        async function getData() {
+            const leker = await fetch('./OctoberFest.csv');
+            const adatok = await leker.text();
+            const rows = adatok.trim().split('\n');
+
+            const yOkt = {};
+            const yBun = {};
+            rows.forEach(row => {
+                const oszlop = row.split(';');
+                const year = oszlop[0];
+                const oktData = oszlop[3];
+               // yOkt.push(parseInt(oktData));
+                const bunData = oszlop[4];
+               // yBun.push(parseInt(bunData));
+               yOkt[year] = (yOkt[year] || 0) + Number(oktData);
+               yBun[year] = (yBun[year] || 0) + Number(bunData);
+            });
+            return {yOkt, yBun};
+        } 
+    </script>
+</body>
+</html>
